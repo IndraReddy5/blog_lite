@@ -1,0 +1,11 @@
+from werkzeug.exceptions import HTTPException
+from flask import make_response
+
+class UserNotFound(HTTPException):
+    def __init__(self, status_code):
+        self.response = make_response("user not found", status_code)
+
+class ValidationError(HTTPException):
+    def __init__(self, status_code, error_code, error_message):
+        message = {"error_code":error_code, "error_message":error_message}
+        self.response = make_response(message, status_code)

@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Blog Lite - Login
+{% endblock %}
+
+{% block body %}
+<div class="col next">
+	<div align="center">
+		<br>
+		<h1>Log in to Blog Lite</h1>
+		<br>
+	<form method="POST" action="{{url_for('login')}}"class="col-md-5">
+        <div class="form-group">
+            <input type="text" class="form-control" name="username" placeholder="username/email" autocomplete="off" required>
+        </div>
+        <div class="form-group">
+            <input type="password" class="form-control" name="password" placeholder="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+    <br>
+    <p><b> New to Blog Lite? <a href="{{url_for('create_account')}}">Sign up now </a></b></p>
+</div>
+</div>
+{% endblock %}
