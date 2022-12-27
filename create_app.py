@@ -28,7 +28,7 @@ def create_app():
     api.add_resource(Likes_API, '/api/Likes/<int:p_id>',
                      '/api/Likes/<int:l_id>', '/api/Likes/<string:username>/<int:p_id>')
     api.add_resource(Follow_API, '/api/Follow/<string:username>',
-                     '/api/Likes/<string:follower_username>/<string:followed_username>')
+                     '/api/Follow/<string:follower_username>/<string:followed_username>')
     api.init_app(app)
     login_manager.init_app(app)
 
