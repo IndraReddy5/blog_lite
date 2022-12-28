@@ -1,0 +1,20 @@
+/*---------------------------------------------------- Navbar css ------------------------------------------------------*/
+@media only screen and (min-width: 990px) {
+    .disable_dropdown{
+        display: none;
+    }
+    .logout_class{
+        display: contents;
+    }
+}
+
+@media only screen and (max-width: 990px) {
+    .disable_dropdown{
+      display: contents;
+    }
+    .logout_class{
+        display: none;
+    }
+}
+
+/*----------------------------------------------------- Navbar css End -------------------------------------------------------*/ 

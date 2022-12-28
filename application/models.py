@@ -18,7 +18,7 @@ class User(UserMixin, db.Model):
         return sha256_crypt.verify(password, self.password)
 
     def get_id(self):
-           return (self.user_id)
+           return (self.username)
 
 class User_profile(db.Model):
     __tablename__ = 'user_profile'
@@ -38,6 +38,7 @@ class Posts(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     post_image = db.Column(db.String)
+    timestamp = db.Column(db.DateTime)
     comments = db.relationship("Comments", cascade="delete", foreign_keys='Comments.post_id')
     likes = db.relationship("Likes", cascade="delete", foreign_keys='Likes.post_id')
 
@@ -47,6 +48,7 @@ class Comments(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.p_id'), nullable=False)
     commenter = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
     comment_description = db.Column(db.String, nullable=False)
+    timestamp = db.Column(db.DateTime)
 
 class Likes(db.Model):
     __tablename__ = 'likes'
