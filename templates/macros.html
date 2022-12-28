@@ -1,0 +1,33 @@
+{% macro display_nav(user) -%}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" aria-label="Fifth navbar example">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Welcome {{user}}</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample05" aria-controls="navbarsExample05" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsExample05">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li><a class="nav-link disable_dropdown" href="#">New post</a></li>
+          <li><a class="nav-link disable_dropdown" href="#">Profile</a></li>
+          <li><a class="nav-link disable_dropdown" href="#">Sign out</a></li>
+        </ul>
+        
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+        </form>
+        <div class="dropdown text-end logout_class">
+          <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="/static/profile_images/user7_old-monk_-_alwin.gif" alt="mdo" width="32" height="32" class="rounded-circle">
+          </a>
+          <ul class="dropdown-menu text-small" style="position: absolute; font-size: 85%; inset: 0px 4px auto auto; margin: 0px; transform: translate(0px, 34px);" data-popper-placement="static">
+            <li><a class="dropdown-item" href="{{url_for('create_post',username=user)}}">New post</a></li>
+            <li><a class="dropdown-item" href="{{url_for('load_profile',username=user)}}">Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{{url_for('logout')}}">Sign out</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
+{% endmacro -%}

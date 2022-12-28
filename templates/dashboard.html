@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% import 'macros.html' as m -%}
+{% block title %}
+Blog Lite - {{user}} Dashboard
+{% endblock %}
+
+
+{% block nav %}
+{{ m.display_nav(user) }}
+{% endblock %}
+{% block body %}
+{% endblock %}
