@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% import 'macros.html' as m -%}
+{% block title %}
+Blog Lite - {{user}} Dashboard
+{% endblock %}
+
+
+{% block nav %}
+{{ m.display_nav(user,profile_image_path) }}
+{% endblock %}
+{% block body %}
+<div class="col-md-10 mx-auto col-lg-5 p-4 p-md-3">
+    <h1>Create Blog Post</h1>
+    <br>
+    <form method="POST" action="{{url_for('create_post',username=user)}}" enctype="multipart/form-data">
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" name="title" placeholder="title" autocomplete="off" required>
+        <label for="floatingInput">title</label>
+      </div>
+      <div class="form-floating mb-3">
+        <textarea type="text" class="form-control" name="post_description" placeholder="Post Description" autocomplete="off" style="height: 100px" required></textarea>
+        <label for="floatingTextarea2">Post Description</label>
+      </div>
+      <div class="form-floating mb-3">
+        <em>Choose Post Image</em>
+      </div>
+      <div class="form-group">
+        <input type="file" class="form-control" name="post_image">
+      </div>
+      <br>
+      <button class="w-100 btn btn-lg btn-primary" type="submit">Create Post</button>
+      <hr class="my-4">
+      <small class="text-muted">Your post title should be unique, just like you &#128521. </small>
+    </form>
+</div>
+{% endblock %}

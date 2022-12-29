@@ -7,6 +7,7 @@ from application.errors import *
 
 import os
 import json
+from datetime import datetime as dt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -14,12 +15,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class User_profile_API(Resource):
 
     output = {"username": fields.String, "first_name": fields.String,
-              "last_name": fields.String, "profile_image": fields.String}
+              "last_name": fields.String, "profile_image": fields.String,
+              "followers_count": fields.Integer, "following": fields.Integer, "total_posts":fields.Integer}
 
     @marshal_with(output)
     def get(self, username):
         u_obj = User_profile.query.filter_by(username=username).first()
         if u_obj:
+            u_obj.followers_count = Follow.query.filter_by(
+                followed_username=username).count()
+            u_obj.following = Follow.query.filter_by(
+                follower_username=username).count()
+            u_obj.total_posts = Posts.query.filter_by(
+                    author_name=username).count()
             return u_obj, 200
         else:
             raise NotFound(status_code=404, error_message="User not found")
@@ -31,7 +39,8 @@ class User_profile_API(Resource):
             db.session.delete(u_obj)
             db.session.delete(u_p_obj)
             # profile pic to be deleted
-            file_path = os.path.join(basedir, u_p_obj.profile_image)
+            file_path = os.path.join(
+                'static/profile_images/username_', u_p_obj.profile_image)
             cmd = 'rm ' + f'{file_path}'
             os.system(cmd)
             db.session.commit()
@@ -41,22 +50,30 @@ class User_profile_API(Resource):
 
     @marshal_with(output)
     def put(self, username):
-        u_obj = User_profile.query.filter_by(username=username).first()
-        if u_obj:
+        u_obj = User.query.filter_by(username=username).first()
+        u_p_obj = User_profile.query.filter_by(username=username).first()
+        if u_p_obj and u_obj:
             form_data = request.get_json()
             if form_data.get("profile_image") != u_obj.profile_image:
                 file_path = os.path.join(
-                    basedir, 'static\\profile_images\\'+f'{username}_'+f'{u_obj.profile_image}')
+                    'static/profile_images/username_', u_p_obj.profile_image)
                 cmd = 'rm ' + f'{file_path}'
                 os.system(cmd)
-            u_obj.first_name = form_data.get("first_name")
-            u_obj.last_name = form_data.get("last_name")
+            u_p_obj.first_name = form_data.get("first_name")
+            u_p_obj.last_name = form_data.get("last_name")
+            u_p_obj.email = form_data.get("email")
+            u_p_obj.profile_image = form_data.get("profile_image")
             u_obj.email = form_data.get("email")
             u_obj.profile_image = form_data.get("profile_image")
-
             db.session.commit()
+            u_p_obj.followers_count = Follow.query.filter_by(
+                followed_username=username).count()
+            u_p_obj.following = Follow.query.filter_by(
+                follower_username=username).count()
+            u_obj.total_posts = Posts.query.filter_by(
+                author_name=username).count()
 
-            return u_obj, 200
+            return u_p_obj, 200
         else:
             raise NotFound(status_code=404, error_message="User not found")
 
@@ -68,7 +85,7 @@ class User_profile_API(Resource):
             if username:
                 u_obj = User_profile()
                 u = User(username=form_data.get("username"), password=form_data.get(
-                    "password"), email=form_data.get("email"))
+                    "password"), email=form_data.get("email"), profile_image=form_data.get("profile_image"))
                 u_obj.username = form_data.get("username")
                 u_obj.first_name = form_data.get("first_name")
                 u_obj.last_name = form_data.get("last_name")
@@ -77,6 +94,12 @@ class User_profile_API(Resource):
                 db.session.add(u)
                 db.session.add(u_obj)
                 db.session.commit()
+                u_obj.followers_count = Follow.query.filter_by(
+                    followed_username=username).count()
+                u_obj.following = Follow.query.filter_by(
+                    follower_username=username).count()
+                u_obj.total_posts = Posts.query.filter_by(
+                    author_name=username).count()
                 return u_obj, 200
             else:
                 raise ValidationError(
@@ -92,6 +115,7 @@ class Posts_API(Resource):
               "title": fields.String,
               "description": fields.String,
               "post_image": fields.String,
+              "timestamp": fields.String,
               "total_comments": fields.Integer,
               "total_likes": fields.Integer}
 
@@ -135,20 +159,23 @@ class Posts_API(Resource):
         else:
             raise NotFound(status_code=404, error_message="Post not found")
 
+    @marshal_with(output)
     def post(self):
         data = request.get_json()
-        title = data.get(title)
+        title = data.get('title')
         post_object = Posts()
-        if Posts.query.filter_by(title=title).first():
+        if not Posts.query.filter_by(title=title).first():
             if title:
                 post_object.author_name = data.get('author_name')
                 post_object.title = data.get('title')
                 post_object.description = data.get('description')
                 post_object.post_image = data.get('post_image')
+                post_object.timestamp = dt.now().strftime("%H_%M_%S_%d_%m_%Y")
 
                 db.session.add(post_object)
                 db.session.commit()
-                return json.dumps(post_object), 200
+                post_object = Posts.query.filter_by(title=title).first()
+                return post_object, 200
             else:
                 raise ValidationError(status_code=400, error_code="post_2",
                                       error_message="Please add a title for your blog post")
@@ -269,6 +296,7 @@ class Likes_API(Resource):
 class Follow_API(Resource):
 
     output = {"follower_username": fields.String,
+              "followed_username": fields.String,
               "follow_back": fields.Integer}
 
     @marshal_with(output)
@@ -276,9 +304,12 @@ class Follow_API(Resource):
         # gets all followers a particular user
         user_object = User_profile.query.filter_by(username=username).first()
         if user_object:
-            follow_object = Follow.query.filter_by(
+            followed_object = Follow.query.filter_by(
                 followed_username=username).all()
-            return follow_object, 200
+            follower_object = Follow.query.filter_by(
+                follower_username=username).all()
+            output = follower_object+followed_object
+            return output, 200
         else:
             raise NotFound(status_code=404, error_message="User not found")
 

@@ -37,11 +37,14 @@ def login():
 
         # check if username and password matches
         data = User.query.filter_by(username=username).first()
-        if data.validate_password(password):
-            login_user(data, remember=True)
-            return redirect(url_for('dashboard'))
+        if data:
+            if data.validate_password(password):
+                login_user(data, remember=True)
+                return redirect(url_for('dashboard'))
+            else:
+                return render_template('login.html', error=1)
         else:
-            return render_template('login.html', error=1)
+            return "user doesn't exist"
 
 
 @app.route('/create_account', methods=["GET", "POST"])
@@ -53,11 +56,6 @@ def create_account():
     else:
         file_uploaded = request.files['profile_image']
         username = request.form['username']
-        if file_uploaded.filename:
-            file_path = 'static\\profile_images\\' + \
-                f'{username}_'+f'{file_uploaded.filename}'
-        else:
-            file_path = ""
         form_data = {'username': request.form['username'],
                      'first_name': request.form['first_name'],
                      'last_name': request.form['last_name'],
@@ -65,8 +63,9 @@ def create_account():
                      'password': request.form['password'],
                      'profile_image': file_uploaded.filename}
         if req.post(url=request.url_root+'api/User_profile', json=form_data).status_code == 200:
-            if file_path:
-                file_uploaded.save(os.path.join(basedir, file_path))
+            if file_uploaded.filename:
+                file_uploaded.save(os.path.join(
+                    'static/profile_images/', username+"_"+file_uploaded.filename))
             return redirect('/')
         else:
             return "user exists"
@@ -75,19 +74,36 @@ def create_account():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', user=current_user.username)
+    return render_template('dashboard.html', user=current_user.username, profile_image_path=current_user.profile_image)
 
 
-@app.route('/<string:username>/create_post')
+@app.route('/<string:username>/create_post', methods=["GET", "POST"])
 @login_required
 def create_post(username):
-    return render_template("create_post.html")
+    if request.method == "GET":
+        return render_template("create_post.html", user=current_user.username, profile_image_path=current_user.profile_image)
+    else:
+        title = request.form['title']
+        post_description = request.form['post_description']
+        post_image = request.files['post_image']
+        form_data = {"author_name": username,
+                     "title": title,
+                     "description": post_description,
+                     "post_image": post_image.filename}
+        if req.post(url=request.url_root+'/api/Posts', json=form_data).status_code == 200:
+            if post_image.filename:
+                post_image.save(os.path.join(
+                    'static/post_images/', username+"_"+title+"_"+post_image.filename))
+            return redirect(url_for('dashboard'))
+        else:
+            return "post already exists"
 
-
-@app.route('/profile/<string:username>')
+@app.route('/profile/<string:username>/posts', methods=['GET'])
+@app.route('/profile/<string:username>', methods=['GET'])
 @login_required
 def load_profile(username):
-    return render_template("profile.html")
+    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts")
 
 
 @app.route('/blog/<int:p_id>')
@@ -96,10 +112,12 @@ def blog_post():
     return render_template('blog_post.html')
 
 
-@app.route('/<string:username>/followers')
+@app.route('/profile/<string:username>/followers', methods=['GET'])
 @login_required
-def followers():
-    return render_template('followers_page.html')
+def followers(username):
+    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    followers = req.get(url=request.url_root+f'/api/Follow/{username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followers", followers=followers)
 
 
 @app.route('/<string:username>/followers')

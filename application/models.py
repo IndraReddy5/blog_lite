@@ -4,15 +4,16 @@ from passlib.hash import sha256_crypt
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
-    user_id = db.Column(db.Integer, autoincrement=True)
     username = db.Column(db.String, unique=True, primary_key=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+    profile_image = db.Column(db.String)
 
-    def __init__(self, username, password, email):
+    def __init__(self, username, password, email, profile_image):
         self.username = username
         self.password = sha256_crypt.hash(password)
         self.email = email
+        self.profile_image = profile_image
 
     def validate_password(self, password):
         return sha256_crypt.verify(password, self.password)
@@ -38,7 +39,7 @@ class Posts(db.Model):
     title = db.Column(db.String)
     description = db.Column(db.String)
     post_image = db.Column(db.String)
-    timestamp = db.Column(db.DateTime)
+    timestamp = db.Column(db.String)
     comments = db.relationship("Comments", cascade="delete", foreign_keys='Comments.post_id')
     likes = db.relationship("Likes", cascade="delete", foreign_keys='Likes.post_id')
 
@@ -48,19 +49,19 @@ class Comments(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('posts.p_id'), nullable=False)
     commenter = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
     comment_description = db.Column(db.String, nullable=False)
-    timestamp = db.Column(db.DateTime)
+    timestamp = db.Column(db.String)
 
 class Likes(db.Model):
     __tablename__ = 'likes'
     l_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.p_id'), nullable=False)
     engaged_user = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
-    likes = db.Column(db.Boolean, nullable=False)
-    dislikes = db.Column(db.Boolean, nullable=False)
+    likes = db.Column(db.Integer, nullable=False)
+    dislikes = db.Column(db.Integer, nullable=False)
 
 class Follow(db.Model):
     __tablename__ = 'follow'
     f_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     follower_username = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
     followed_username = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
-    follow_back = db.Column(db.Boolean, nullable=False)
+    follow_back = db.Column(db.Integer, nullable=False)

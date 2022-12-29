@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+{% import 'macros.html' as m -%}
+{% block title %}
+Blog Lite - {{user}} Dashboard
+{% endblock %}
+
+
+{% block nav %}
+{{ m.display_nav(user,profile_image_path) }}
+{% endblock %}
+{% block body %}
+<div class="card mb-3">
+    <div class="row g-0">
+      <div class="col-md-4">
+        <img src="{{url_for('static',filename='profile_images/'~profile.username~'_'~profile.profile_image)}}" class="img-fluid object-fit-contain border rounded-start" alt="profile-pic">
+      </div>
+      <div class="col-md-8">
+        <div class="card-body mt-3">
+          <h4 class="card-title">{{profile.username}}</h4>
+          <div class="row cols-2 mt-2">
+            <div class="col card-text">First Name</div>
+            <div class="col card-text">{{profile.first_name}}</div>
+          </div>
+          <div class="row cols-2 mt-2">
+            <div class="col card-text">Last Name</div>
+            <div class="col card-text">{{profile.last_name}}</div>
+          </div>
+          <div class="card bg-dark text-center text-white mt-4">
+            <div class="row row-cols-3 p-3">
+              <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Posts</a></div>
+              <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Following</a></div>
+              <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Followers</a></div>
+              <div class="col card-text mt-2">{{profile.total_posts}}</div>
+              <div class="col card-text mt-2">{{profile.following}}</div>
+              <div class="col card-text mt-2">{{profile.followers_count}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<!-- Profile Section Start -->
+<!-- Profile Section End -->
+<!-- Followers Section Start -->
+<!-- Followers Section End -->
+<!-- Followed By Section Start -->
+<!-- Followed By Section End -->
+{% endblock %}
