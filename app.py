@@ -1,19 +1,18 @@
 from flask import request, redirect, url_for
 from flask import render_template
-from flask import Flask
 
 from application.models import User
-from create_app import create_app,  login_manager, basedir, db
+from create_app import create_app, login_manager, db
 
 from flask_login import login_required, login_user, logout_user, current_user
 import requests as req
 import os
 
-
 app = create_app()
 app.app_context().push()
 db.create_all()
 
+# login manager handler routes start
 
 @login_manager.user_loader
 def load_user(username):
@@ -24,6 +23,9 @@ def load_user(username):
 def unauthorized_callback():
     return redirect('/')
 
+# login manager handler routes End
+
+# App login and Sign routes Start
 
 @app.route('/', methods=["GET", "POST"])
 def login():
@@ -70,12 +72,52 @@ def create_account():
         else:
             return "user exists"
 
+# App login and Sign routes End
+
+# App Dashboard route start
 
 @app.route('/dashboard')
 @login_required
 def dashboard():
     return render_template('dashboard.html', user=current_user.username, profile_image_path=current_user.profile_image)
 
+# App Dashboard route End
+
+# App routes for User Profile Actions Start
+
+@app.route('/profile/<string:username>/posts', methods=['GET'])
+@app.route('/profile/<string:username>', methods=['GET'])
+@login_required
+def load_profile(username):
+    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    post_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts")
+
+@app.route('/profile/<string:username>/followers', methods=['GET'])
+@login_required
+def followers(username):
+    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    followers = req.get(url=request.url_root+f'/api/Follow/{username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followers", followers=followers)
+
+@app.route('/profile/<string:username>/followed', methods=['GET'])
+@login_required
+def followed(username):
+    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    followed = req.get(url=request.url_root+f'/api/Follow/{username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followed", followers=followed)
+
+@app.route('/delete/<string:username>')
+@login_required
+def delete_account(username):
+    if current_user.username == username:
+        if req.delete(url=request.url_root+f'/api/User_profile/{username}').status_code == 200:
+            logout_user()
+            return redirect('/')
+
+# App routes for User Profile Actions End
+
+# App routes for users posts Start
 
 @app.route('/<string:username>/create_post', methods=["GET", "POST"])
 @login_required
@@ -98,33 +140,14 @@ def create_post(username):
         else:
             return "post already exists"
 
-@app.route('/profile/<string:username>/posts', methods=['GET'])
-@app.route('/profile/<string:username>', methods=['GET'])
-@login_required
-def load_profile(username):
-    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
-    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts")
-
-
 @app.route('/blog/<int:p_id>')
 @login_required
 def blog_post():
     return render_template('blog_post.html')
 
+# App routes for users posts End
 
-@app.route('/profile/<string:username>/followers', methods=['GET'])
-@login_required
-def followers(username):
-    return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
-    followers = req.get(url=request.url_root+f'/api/Follow/{username}').json()
-    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followers", followers=followers)
-
-
-@app.route('/<string:username>/followers')
-@login_required
-def followed():
-    return render_template('followed_page.html')
-
+# App route for logout of current_user Start
 
 @app.route('/logout')
 @login_required
@@ -132,6 +155,7 @@ def logout():
     logout_user()
     return redirect('/')
 
+# App route for logout of current_user End
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)

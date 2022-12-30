@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 {% import 'macros.html' as m -%}
 {% block title %}
-Blog Lite - {{user}} Dashboard
+Blog Lite - {{profile.username}} profile
 {% endblock %}
 
 
@@ -9,15 +9,42 @@ Blog Lite - {{user}} Dashboard
 {{ m.display_nav(user,profile_image_path) }}
 {% endblock %}
 {% block body %}
-<div class="card mb-3">
+<div class="card mb-1 h-40">
     <div class="row g-0">
       <div class="col-md-4">
-        <img src="{{url_for('static',filename='profile_images/'~profile.username~'_'~profile.profile_image)}}" class="img-fluid object-fit-contain border rounded-start" alt="profile-pic">
+        <img src="{{url_for('static',filename='profile_images/'~profile.username~'_'~profile.profile_image)}}" class="img-responsive img-thumbnail object-fit-cover border rounded" style="width: 100%; height: 100%;" alt="profile-pic">
       </div>
       <div class="col-md-8">
         <div class="card-body mt-3">
-          <h4 class="card-title">{{profile.username}}</h4>
-          <div class="row cols-2 mt-2">
+          <div class="d-flex justify-content-between">
+            <h4>{{profile.username}}</h4>
+            {% if user != profile.username %}
+            <button class="btn btn-primary">Follow</button>
+            {% else %}
+            <span class="btn btn-info btn-sm"><b>Edit Profile</b> <i class="bi bi-pencil-square"></i></span>
+            <a role="button" href="#delete_confirmation_modal" class="btn btn-danger btn-sm" data-bs-toggle="modal"><b>Delete Account</b><i class="bi bi-trash"></i></a>
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="delete_confirmation_modal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">Delete {{profile.username}} Account</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you want to delete your account?</p>
+                        <p class="text-secondary"><small>If you delete, your data will be lost.</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger"><a href="{{url_for('delete_account',username=profile.username)}}" class="text-decoration-none text-white">Yes, delete my account</a></button>
+                    </div>
+                </div>
+            </div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="row cols-2 mt-4">
             <div class="col card-text">First Name</div>
             <div class="col card-text">{{profile.first_name}}</div>
           </div>
@@ -27,8 +54,8 @@ Blog Lite - {{user}} Dashboard
           </div>
           <div class="card bg-dark text-center text-white mt-4">
             <div class="row row-cols-3 p-3">
-              <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Posts</a></div>
-              <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Following</a></div>
+              <div class="col card-text"><a href="{{url_for('load_profile',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Posts</a></div>
+              <div class="col card-text"><a href="{{url_for('followed',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Followed</a></div>
               <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Followers</a></div>
               <div class="col card-text mt-2">{{profile.total_posts}}</div>
               <div class="col card-text mt-2">{{profile.following}}</div>
@@ -42,7 +69,41 @@ Blog Lite - {{user}} Dashboard
 <!-- Profile Section Start -->
 <!-- Profile Section End -->
 <!-- Followers Section Start -->
+{% if load_variable == "followers" %}
+<div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 95%;">
+  <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followers</h6>
+  <div class="d-flex text-muted pt-3">
+    {% for x in followers %}
+    {% if x.followed_username == profile.username %}
+    <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+      <div class="d-flex justify-content-between">
+        <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="{{url_for('load_profile',username=x.follower_username)}}">{{x.follower_username}}</a></strong>
+        <a href="#" class="btn btn-primary">Follow</a>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 <!-- Followers Section End -->
 <!-- Followed By Section Start -->
+{% if load_variable == "followed" %}
+<div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 95%;">
+  <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followed</h6>
+  <div class="d-flex text-muted pt-3">
+    {% for x in followers %}
+    {% if x.follower_username == profile.username %}
+    <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+      <div class="d-flex justify-content-between">
+        <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="{{url_for('load_profile',username=x.followed_username)}}">{{x.followed_username}}</a></strong>
+        <a href="#" class="btn btn-primary">Follow</a>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 <!-- Followed By Section End -->
 {% endblock %}

@@ -6,7 +6,6 @@ from application.models import User, User_profile, Posts, Likes, Comments, Follo
 from application.errors import *
 
 import os
-import json
 from datetime import datetime as dt
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -39,8 +38,7 @@ class User_profile_API(Resource):
             db.session.delete(u_obj)
             db.session.delete(u_p_obj)
             # profile pic to be deleted
-            file_path = os.path.join(
-                'static/profile_images/username_', u_p_obj.profile_image)
+            file_path = f'static/profile_images/{username}_' + u_p_obj.profile_image
             cmd = 'rm ' + f'{file_path}'
             os.system(cmd)
             db.session.commit()
@@ -55,8 +53,7 @@ class User_profile_API(Resource):
         if u_p_obj and u_obj:
             form_data = request.get_json()
             if form_data.get("profile_image") != u_obj.profile_image:
-                file_path = os.path.join(
-                    'static/profile_images/username_', u_p_obj.profile_image)
+                file_path = f'static/profile_images/{username}_' + u_p_obj.profile_image
                 cmd = 'rm ' + f'{file_path}'
                 os.system(cmd)
             u_p_obj.first_name = form_data.get("first_name")
