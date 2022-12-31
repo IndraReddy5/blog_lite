@@ -18,8 +18,12 @@ Blog Lite - {{profile.username}} profile
         <div class="card-body mt-3">
           <div class="d-flex justify-content-between">
             <h4>{{profile.username}}</h4>
-            {% if user != profile.username %}
-            <button class="btn btn-primary">Follow</button>
+            {% if user != profile.username %} 
+              {% if profile.username not in lu_followers.following %}
+              <a href="{{url_for('follow_action',username=user,fr_name=user,fd_name=profile.username)}}" class="btn btn-primary">follow</a>
+              {% else %}
+              <a href="{{url_for('unfollow_action',username=user,fr_name=user,fd_name=profile.username)}}" class="btn btn-danger">unfollow</a>
+              {% endif %}
             {% else %}
             <span class="btn btn-info btn-sm"><b>Edit Profile</b> <i class="bi bi-pencil-square"></i></span>
             <a role="button" href="#delete_confirmation_modal" class="btn btn-danger btn-sm" data-bs-toggle="modal"><b>Delete Account</b><i class="bi bi-trash"></i></a>
@@ -70,15 +74,17 @@ Blog Lite - {{profile.username}} profile
 <!-- Profile Section End -->
 <!-- Followers Section Start -->
 {% if load_variable == "followers" %}
+{{followers}}
 <div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 95%;">
   <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followers</h6>
-  <div class="d-flex text-muted pt-3">
     {% for x in followers %}
-    {% if x.followed_username == profile.username %}
-    <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
-      <div class="d-flex justify-content-between">
-        <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="{{url_for('load_profile',username=x.follower_username)}}">{{x.follower_username}}</a></strong>
-        <a href="#" class="btn btn-primary">Follow</a>
+    {% if x != user %}
+    <div class="d-flex text-muted pt-3">
+      <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+        <div class="d-flex justify-content-between">
+          <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{x}}</a></strong>
+          <a href="#" class="btn btn-primary">Follow</a>
+        </div>
       </div>
     </div>
     {% endif %}
@@ -89,20 +95,23 @@ Blog Lite - {{profile.username}} profile
 <!-- Followers Section End -->
 <!-- Followed By Section Start -->
 {% if load_variable == "followed" %}
+{{followers}}
 <div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 95%;">
   <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followed</h6>
-  <div class="d-flex text-muted pt-3">
+    {% if followers %}
     {% for x in followers %}
-    {% if x.follower_username == profile.username %}
-    <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
-      <div class="d-flex justify-content-between">
-        <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="{{url_for('load_profile',username=x.followed_username)}}">{{x.followed_username}}</a></strong>
-        <a href="#" class="btn btn-primary">Follow</a>
+    {% if x != user %}
+    <div class="d-flex text-muted pt-3">
+      <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+        <div class="d-flex justify-content-between">
+          <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{x}}</a></strong>
+          <a href="#" class="btn btn-primary">Follow</a>
+        </div>
       </div>
     </div>
     {% endif %}
     {% endfor %}
-  </div>
+    {% endif %}
 </div>
 {% endif %}
 <!-- Followed By Section End -->

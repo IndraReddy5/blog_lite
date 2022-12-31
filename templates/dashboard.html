@@ -9,4 +9,25 @@ Blog Lite - {{user}} Dashboard
 {{ m.display_nav(user,profile_image_path) }}
 {% endblock %}
 {% block body %}
+<div class="row row-cols-1 row-cols-md-3 g-4 m-2 p-2" style="width:99%;">
+    {% for x in feed %}
+    <div class="col">
+        <div class="card h-100">
+        {% if x.post_image %}
+        <img src="{{url_for('static',filename='post_images/'~x.author_name~'_'~x.title~'_'~x.post_image)}}" class="card-img-top" alt="post-image">
+        {% else %}
+        <div></div>
+        {% endif %}
+        <div class="card-body">
+            <h5 class="card-title">{{x.title}}</h5>
+            <p class="card-text">{{x.description}}</p>
+        </div>
+        <div class="card-footer">
+            <small class="text-muted">{{x.timestamp}}</small>
+        </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
 {% endblock %}

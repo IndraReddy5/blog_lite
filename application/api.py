@@ -8,8 +8,19 @@ from application.errors import *
 import os
 from datetime import datetime as dt
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+def prettify_date(date):
+    date = dt.strptime(date,"%Y_%m_%d_%H_%M_%S")
+    day = date.strftime("%d/%m/%Y")
+    time = date.strftime("%I:%M %p")
 
+    return [day,time]
+
+def get_usernames_object(f_object,key="following"):
+    if key == "following":
+        output = [x.followed_username for x in f_object]
+    if key == "followers":
+        output = [x.follower_username for x in f_object]
+    return output
 
 class User_profile_API(Resource):
 
@@ -112,7 +123,7 @@ class Posts_API(Resource):
               "title": fields.String,
               "description": fields.String,
               "post_image": fields.String,
-              "timestamp": fields.String,
+              "timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
               "total_likes": fields.Integer}
 
@@ -124,6 +135,7 @@ class Posts_API(Resource):
                 post_id=p_id).count()
             post_object.total_likes = Likes.query.filter_by(
                 post_id=p_id).count()
+            post_object.timestamp = prettify_date(post_object.timestamp)
             return post_object, 200
         else:
             raise NotFound(status_code=404, error_message="Post not found")
@@ -152,6 +164,7 @@ class Posts_API(Resource):
                 post_id=p_id).count()
             post_object.total_likes = Likes.query.filter_by(
                 post_id=p_id).count()
+            post_object.timestamp = prettify_date(post_object.timestamp)
             return post_object, 200
         else:
             raise NotFound(status_code=404, error_message="Post not found")
@@ -167,11 +180,12 @@ class Posts_API(Resource):
                 post_object.title = data.get('title')
                 post_object.description = data.get('description')
                 post_object.post_image = data.get('post_image')
-                post_object.timestamp = dt.now().strftime("%H_%M_%S_%d_%m_%Y")
+                post_object.timestamp = dt.now().strftime("%Y_%m_%d_%H_%M_%S")
 
                 db.session.add(post_object)
                 db.session.commit()
                 post_object = Posts.query.filter_by(title=title).first()
+                post_object.timestamp = prettify_date(post_object.timestamp)
                 return post_object, 200
             else:
                 raise ValidationError(status_code=400, error_code="post_2",
@@ -184,13 +198,15 @@ class Posts_API(Resource):
 class Comments_API(Resource):
     output = {"post_id": fields.Integer,
               "commenter": fields.String,
-              "comment_description": fields.String}
+              "comment_description": fields.String,
+              "timestamp":fields.List(fields.String)}
 
     @marshal_with(output)
     def get(self, p_id):
         # gets all comments of a particular post
         comments_list = Comments.query.filter_by(post_id=p_id).all()
         if comments_list:
+            comments_list.timestamp = prettify_date(comments_list.timestamp)
             return comments_list, 200
         else:
             raise NotFound(status_code=404,
@@ -216,6 +232,8 @@ class Comments_API(Resource):
             comment_object.commenter = data.get('commenter')
             comment_object.comment_description = data.get(
                 'comment_description')
+            db.session.commit()
+            comment_object.timestamp = prettify_date(comment_object.timestamp)
             return comment_object, 200
         else:
             raise NotFound(status_code=404,
@@ -231,8 +249,10 @@ class Comments_API(Resource):
             comment_object.commenter = data.get('commenter')
             comment_object.comment_description = data.get(
                 'comment_description')
+            comment_object.timestamp = dt.now().strftime("%Y_%m_%d_%H_%M_%S")
             db.session.add(comment_object)
             db.session.commit()
+            comment_object.timestamp = prettify_date(comment_object.timestamp)
             return comment_object, 200
         else:
             raise NotFound(
@@ -291,10 +311,9 @@ class Likes_API(Resource):
 
 
 class Follow_API(Resource):
-
-    output = {"follower_username": fields.String,
-              "followed_username": fields.String,
-              "follow_back": fields.Integer}
+   
+    output = {"following":fields.List(fields.String),
+              "followers": fields.List(fields.String)}
 
     @marshal_with(output)
     def get(self, username):
@@ -305,7 +324,9 @@ class Follow_API(Resource):
                 followed_username=username).all()
             follower_object = Follow.query.filter_by(
                 follower_username=username).all()
-            output = follower_object+followed_object
+            followers = get_usernames_object(followed_object, key="followers")
+            following = get_usernames_object(follower_object, key="following")
+            output = {"following":following,"followers":followers}
             return output, 200
         else:
             raise NotFound(status_code=404, error_message="User not found")
@@ -314,12 +335,8 @@ class Follow_API(Resource):
         # removes a follower from the user
         like1_object = Follow.query.filter_by(
             follower_username=follower_username, followed_username=followed_username).first()
-        like2_object = Follow.query.filter_by(
-            follower_username=followed_username, followed_username=follower_username).first()
         if like1_object:
             db.session.delete(like1_object)
-            if like2_object:
-                like2_object.follow_back = 0
             db.session.commit()
             return f"Now {follower_username} doesn't follow {followed_username}", 200
         else:
@@ -329,15 +346,54 @@ class Follow_API(Resource):
     def post(self, follower_username, followed_username):
         # adds a follower to a user
         like1_object = Follow()
-        like2_object = Follow.query.filter_by(
-            follower_username=followed_username, followed_username=follower_username).first()
-        if like2_object:
-            like2_object.follow_back = 1
-            like1_object.follow_back = 1
-        else:
-            like1_object.follow_back = 0
         like1_object.follower_username = follower_username
         like1_object.followed_username = followed_username
         db.session.add(like1_object)
         db.session.commit()
         return f"{follower_username} now follows {followed_username}", 200
+
+class Get_Feed_API(Resource):
+    # get post_feed of a user
+    output = {"author_name": fields.String,
+              "title": fields.String,
+              "description": fields.String,
+              "post_image": fields.String,
+              "timestamp": fields.List(fields.String),
+              "total_comments": fields.Integer,
+              "total_likes": fields.Integer}
+    
+    @marshal_with(output)
+    def get(self, username):
+        follower_object = Follow.query.filter_by(
+                follower_username=username).all()
+        following = get_usernames_object(follower_object, key="following")
+        f_output = []
+        for i in following:
+            posts = Posts.query.filter_by(author_name=i).all()
+            f_output += posts
+        f_output.sort(key=lambda r: r.timestamp, reverse=True)
+        for i in f_output:
+            i.timestamp = prettify_date(i.timestamp)
+        return f_output, 200
+
+class Get_User_Posts_API(Resource):
+    output = {"author_name": fields.String,
+              "title": fields.String,
+              "description": fields.String,
+              "post_image": fields.String,
+              "timestamp": fields.List(fields.String),
+              "total_comments": fields.Integer,
+              "total_likes": fields.Integer}
+    
+    @marshal_with(output)
+    def get(self, username):
+        post_object = Posts.query.filter_by(author_name=username).all()
+        for x in post_object:
+            x.total_comments = Comments.query.filter_by(
+                post_id=x.post_id).count()
+            x.total_likes = Likes.query.filter_by(
+                post_id=x.post_id).count()
+            x.timestamp = prettify_date(x.timestamp)
+            return post_object, 200
+        else:
+            raise NotFound(status_code=404, error_message="user not found")

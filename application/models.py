@@ -64,4 +64,3 @@ class Follow(db.Model):
     f_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     follower_username = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
     followed_username = db.Column(db.String, db.ForeignKey('user_profile.username'), nullable=False)
-    follow_back = db.Column(db.Integer, nullable=False)

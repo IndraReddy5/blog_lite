@@ -79,7 +79,8 @@ def create_account():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html', user=current_user.username, profile_image_path=current_user.profile_image)
+    feed = req.get(url=request.url_root+f'api/Feed/{current_user.username}').json()
+    return render_template('dashboard.html', user=current_user.username, profile_image_path=current_user.profile_image, feed = feed)
 
 # App Dashboard route End
 
@@ -91,20 +92,21 @@ def dashboard():
 def load_profile(username):
     return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
     post_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
-    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts")
+    lu_followers = req.get(url=request.url_root+f'/api/Follow/{current_user.username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts", lu_followers=lu_followers)
 
 @app.route('/profile/<string:username>/followers', methods=['GET'])
 @login_required
 def followers(username):
     return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
-    followers = req.get(url=request.url_root+f'/api/Follow/{username}').json()
+    followers = req.get(url=request.url_root+f'/api/Follow/{username}').json().get('followers')
     return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followers", followers=followers)
 
 @app.route('/profile/<string:username>/followed', methods=['GET'])
 @login_required
 def followed(username):
     return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
-    followed = req.get(url=request.url_root+f'/api/Follow/{username}').json()
+    followed = req.get(url=request.url_root+f'/api/Follow/{username}').json().get("following")
     return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followed", followers=followed)
 
 @app.route('/delete/<string:username>')
@@ -146,6 +148,24 @@ def blog_post():
     return render_template('blog_post.html')
 
 # App routes for users posts End
+
+# App routes for follow & unfollow action Start
+
+@app.route('/profile/<string:username>/followers/follow/<string:fr_name>/<string:fd_name>', methods=['GET'])
+def follow_action(username,fr_name,fd_name):
+    if req.post(url=request.url_root+f'/api/Follow/{fr_name}/{fd_name}').status_code==200:
+        return redirect(request.referrer)
+    else:
+        return "some error"
+
+@app.route('/profile/<string:username>/followers/unfollow/<string:fr_name>/<string:fd_name>', methods=['GET'])
+def unfollow_action(username,fr_name,fd_name):
+    if req.delete(url=request.url_root+f'/api/Follow/{fr_name}/{fd_name}').status_code==200:
+        return redirect(request.referrer)
+    else:
+        return "some error"
+
+# App routes for follow & unfollow action End
 
 # App route for logout of current_user Start
 
