@@ -18,3 +18,30 @@
 }
 
 /*----------------------------------------------------- Navbar css End -------------------------------------------------------*/ 
+
+
+/*----------------------------------------------------- Back to Top Start ----------------------------------------------------*/ 
+.back_to_top{
+    position: fixed;
+    bottom: 7%;
+    right: 3%;
+    padding: 10px;
+    z-index: 85;
+    visibility: hidden;
+}
+
+.back_to_top button{
+    background-color: #fff;
+    text-align: center;
+    width: 50px;
+    height: 50px;
+    border: 0;
+    float:right;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px 0px rgb(0, 0, 0, 0.3);
+}
+
+/*----------------------------------------------------- Back to Top End -------------------------------------------------------*/ 

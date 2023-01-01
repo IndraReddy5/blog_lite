@@ -30,7 +30,8 @@ def create_app():
     api.add_resource(Follow_API, '/api/Follow/<string:username>',
                      '/api/Follow/<string:follower_username>/<string:followed_username>')
     api.add_resource(Get_Feed_API, '/api/Feed/<string:username>')
-    api.add_resource(Get_User_Posts_API, '/api/Posts/username')
+    api.add_resource(Get_User_Posts_API, '/api/Posts/<string:username>')
+    api.add_resource(Search_API, '/api/Search/<string:query>')
     api.init_app(app)
     login_manager.init_app(app)
 

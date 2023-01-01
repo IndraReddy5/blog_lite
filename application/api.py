@@ -1,5 +1,5 @@
 from flask_restful import Resource, request
-from flask_restful import fields, marshal_with
+from flask_restful import fields, marshal_with , marshal
 
 from application.database import db
 from application.models import User, User_profile, Posts, Likes, Comments, Follow
@@ -123,7 +123,7 @@ class Posts_API(Resource):
               "title": fields.String,
               "description": fields.String,
               "post_image": fields.String,
-              "timestamp": fields.List(fields.String),
+              "p_timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
               "total_likes": fields.Integer}
 
@@ -135,7 +135,7 @@ class Posts_API(Resource):
                 post_id=p_id).count()
             post_object.total_likes = Likes.query.filter_by(
                 post_id=p_id).count()
-            post_object.timestamp = prettify_date(post_object.timestamp)
+            post_object.p_timestamp = prettify_date(post_object.timestamp)
             return post_object, 200
         else:
             raise NotFound(status_code=404, error_message="Post not found")
@@ -164,7 +164,7 @@ class Posts_API(Resource):
                 post_id=p_id).count()
             post_object.total_likes = Likes.query.filter_by(
                 post_id=p_id).count()
-            post_object.timestamp = prettify_date(post_object.timestamp)
+            post_object.p_timestamp = prettify_date(post_object.timestamp)
             return post_object, 200
         else:
             raise NotFound(status_code=404, error_message="Post not found")
@@ -185,7 +185,7 @@ class Posts_API(Resource):
                 db.session.add(post_object)
                 db.session.commit()
                 post_object = Posts.query.filter_by(title=title).first()
-                post_object.timestamp = prettify_date(post_object.timestamp)
+                post_object.p_timestamp = prettify_date(post_object.timestamp)
                 return post_object, 200
             else:
                 raise ValidationError(status_code=400, error_code="post_2",
@@ -199,14 +199,14 @@ class Comments_API(Resource):
     output = {"post_id": fields.Integer,
               "commenter": fields.String,
               "comment_description": fields.String,
-              "timestamp":fields.List(fields.String)}
+              "p_timestamp":fields.List(fields.String)}
 
     @marshal_with(output)
     def get(self, p_id):
         # gets all comments of a particular post
         comments_list = Comments.query.filter_by(post_id=p_id).all()
         if comments_list:
-            comments_list.timestamp = prettify_date(comments_list.timestamp)
+            comments_list.p_timestamp = prettify_date(comments_list.timestamp)
             return comments_list, 200
         else:
             raise NotFound(status_code=404,
@@ -233,7 +233,7 @@ class Comments_API(Resource):
             comment_object.comment_description = data.get(
                 'comment_description')
             db.session.commit()
-            comment_object.timestamp = prettify_date(comment_object.timestamp)
+            comment_object.p_timestamp = prettify_date(comment_object.timestamp)
             return comment_object, 200
         else:
             raise NotFound(status_code=404,
@@ -252,7 +252,7 @@ class Comments_API(Resource):
             comment_object.timestamp = dt.now().strftime("%Y_%m_%d_%H_%M_%S")
             db.session.add(comment_object)
             db.session.commit()
-            comment_object.timestamp = prettify_date(comment_object.timestamp)
+            comment_object.p_timestamp = prettify_date(comment_object.timestamp)
             return comment_object, 200
         else:
             raise NotFound(
@@ -358,7 +358,7 @@ class Get_Feed_API(Resource):
               "title": fields.String,
               "description": fields.String,
               "post_image": fields.String,
-              "timestamp": fields.List(fields.String),
+              "p_timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
               "total_likes": fields.Integer}
     
@@ -373,7 +373,7 @@ class Get_Feed_API(Resource):
             f_output += posts
         f_output.sort(key=lambda r: r.timestamp, reverse=True)
         for i in f_output:
-            i.timestamp = prettify_date(i.timestamp)
+            i.p_timestamp = prettify_date(i.timestamp)
         return f_output, 200
 
 class Get_User_Posts_API(Resource):
@@ -381,19 +381,32 @@ class Get_User_Posts_API(Resource):
               "title": fields.String,
               "description": fields.String,
               "post_image": fields.String,
-              "timestamp": fields.List(fields.String),
+              "p_timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
               "total_likes": fields.Integer}
     
     @marshal_with(output)
     def get(self, username):
         post_object = Posts.query.filter_by(author_name=username).all()
-        for x in post_object:
-            x.total_comments = Comments.query.filter_by(
-                post_id=x.post_id).count()
-            x.total_likes = Likes.query.filter_by(
-                post_id=x.post_id).count()
-            x.timestamp = prettify_date(x.timestamp)
+        if post_object:
+            for x in post_object:
+                x.total_comments = Comments.query.filter_by(
+                    post_id=x.p_id).count()
+                x.total_likes = Likes.query.filter_by(
+                    post_id=x.p_id).count()
+                x.p_timestamp = prettify_date(x.timestamp)
             return post_object, 200
         else:
             raise NotFound(status_code=404, error_message="user not found")
+
+class Search_API(Resource):
+    output = {"username": fields.String, "first_name": fields.String,
+              "last_name": fields.String, "profile_image": fields.String}
+    
+    @marshal_with(output)
+    def get(self, query):
+        user_object = User_profile.query.filter(User_profile.username.like("%"+query+"%")).all()
+        if user_object:
+            return user_object, 200
+        else:
+            raise NotFound(status_code=404, error_message="no users found")

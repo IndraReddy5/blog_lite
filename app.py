@@ -91,23 +91,25 @@ def dashboard():
 @login_required
 def load_profile(username):
     return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
-    post_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
+    user_posts = req.get(url=request.url_root+f'/api/Posts/{username}').json()
     lu_followers = req.get(url=request.url_root+f'/api/Follow/{current_user.username}').json()
-    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts", lu_followers=lu_followers)
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="posts", lu_followers=lu_followers, user_posts=user_posts)
 
 @app.route('/profile/<string:username>/followers', methods=['GET'])
 @login_required
 def followers(username):
     return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
     followers = req.get(url=request.url_root+f'/api/Follow/{username}').json().get('followers')
-    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followers", followers=followers)
+    lu_followers = req.get(url=request.url_root+f'/api/Follow/{current_user.username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followers", lu_followers=lu_followers, followers=followers)
 
 @app.route('/profile/<string:username>/followed', methods=['GET'])
 @login_required
 def followed(username):
     return_object = req.get(url=request.url_root+f'/api/User_profile/{username}').json()
     followed = req.get(url=request.url_root+f'/api/Follow/{username}').json().get("following")
-    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followed", followers=followed)
+    lu_followers = req.get(url=request.url_root+f'/api/Follow/{current_user.username}').json()
+    return render_template("profile.html", profile=return_object, user=current_user.username, profile_image_path=current_user.profile_image, load_variable="followed", lu_followers=lu_followers,followers=followed)
 
 @app.route('/delete/<string:username>')
 @login_required
