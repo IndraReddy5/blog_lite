@@ -10,94 +10,110 @@ Blog Lite - {{profile.username}} profile
 {% endblock %}
 {% block body %}
 <div class="card mb-1 h-40">
-    <div class="row g-0">
-      <div class="col-md-4">
-        <img src="{{url_for('static',filename='profile_images/'~profile.username~'_'~profile.profile_image)}}" class="img-responsive img-thumbnail object-fit-cover border rounded" style="width: 100%; height: 100%;" alt="profile-pic">
-      </div>
-      <div class="col-md-8">
-        <div class="card-body mt-3">
-          <div class="d-flex justify-content-between">
+  <div class="row g-0">
+    <div class="col-md-3">
+      <img src="{{url_for('static',filename='profile_images/'~profile.username~'_'~profile.profile_image)}}"
+        class="img-responsive object-fit-cover" style="width: 100%; height: 100%;"
+        alt="profile-pic">
+    </div>
+    <div class="col-md-9">
+      <div class="card-body mt-3">
+        <div class="d-flex p-3 pt-0 pb-0 justify-content-between">
+          <div>
             <h4>{{profile.username}}</h4>
-            {% if user != profile.username %} 
-              {% if profile.username not in lu_followers.following %}
-              <a href="{{url_for('follow_action',username=user,fr_name=user,fd_name=profile.username)}}" class="btn btn-primary">follow</a>
-              {% else %}
-              <a href="{{url_for('unfollow_action',username=user,fr_name=user,fd_name=profile.username)}}" class="btn btn-danger">unfollow</a>
-              {% endif %}
-            {% else %}
-            <span class="btn btn-info btn-sm"><b>Edit Profile</b> <i class="bi bi-pencil-square"></i></span>
-            <a role="button" href="#delete_confirmation_modal" class="btn btn-danger btn-sm" data-bs-toggle="modal"><b>Delete Account</b><i class="bi bi-trash"></i></a>
+          </div>
+          {% if user != profile.username %}
+          {% if profile.username not in lu_followers.following %}
+          <a href="{{url_for('follow_action',username=user,fr_name=user,fd_name=profile.username)}}"
+            class="btn btn-primary">follow</a>
+          {% else %}
+          <a href="{{url_for('unfollow_action',username=user,fr_name=user,fd_name=profile.username)}}"
+            class="btn btn-danger">unfollow</a>
+          {% endif %}
+          {% else %}
+          <div>
+            <span class="btn btn-info btn-sm"><i class="bi bi-pencil-square"></i></span>
+            <a role="button" href="#delete_confirmation_modal" class="btn btn-danger btn-sm"
+              data-bs-toggle="modal"><i class="bi bi-trash"></i></a>
             <!-- Delete Confirmation Modal -->
-            <div class="modal fade" id="delete_confirmation_modal" tabindex="-1" role="dialog" aria-labelledby="DeleteModalLabel" aria-hidden="true">
+            <div class="modal fade" id="delete_confirmation_modal" tabindex="-1" role="dialog"
+              aria-labelledby="DeleteModalLabel" aria-hidden="true">
               <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title text-danger">Delete {{profile.username}} Account</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Do you want to delete your account?</p>
-                        <p class="text-secondary"><small>If you delete, your data will be lost.</small></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger"><a href="{{url_for('delete_account',username=profile.username)}}" class="text-decoration-none text-white">Yes, delete my account</a></button>
-                    </div>
+                  <div class="modal-header">
+                    <h5 class="modal-title text-danger">Delete {{profile.username}} Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Do you want to delete your account?</p>
+                    <p class="text-secondary"><small>If you delete, your data will be lost.</small></p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger"><a
+                        href="{{url_for('delete_account',username=profile.username)}}"
+                        class="text-decoration-none text-white">Yes, delete my account</a></button>
+                  </div>
                 </div>
+              </div>
             </div>
-            </div>
-            {% endif %}
           </div>
-          <div class="row cols-2 mt-4">
-            <div class="col card-text">First Name</div>
-            <div class="col card-text">{{profile.first_name}}</div>
-          </div>
-          <div class="row cols-2 mt-2">
-            <div class="col card-text">Last Name</div>
-            <div class="col card-text">{{profile.last_name}}</div>
-          </div>
-          <div class="card bg-dark text-center text-white mt-4">
-            <div class="row row-cols-3 p-3">
-              <div class="col card-text"><a href="{{url_for('load_profile',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Posts</a></div>
-              <div class="col card-text"><a href="{{url_for('followed',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Followed</a></div>
-              <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info" style="font-size:85%">Followers</a></div>
-              <div class="col card-text mt-2">{{profile.total_posts}}</div>
-              <div class="col card-text mt-2">{{profile.following}}</div>
-              <div class="col card-text mt-2">{{profile.followers_count}}</div>
-            </div>
+          {% endif %}
+        </div>
+        <div class="row cols-2 p-3 pt-0 pb-0 mt-4">
+          <div class="col-2 card-text">First Name</div>
+          <div class="col card-text">{{profile.first_name}}</div>
+        </div>
+        <div class="row cols-2 p-3 pt-0 pb-0 mt-2">
+          <div class="col-2 card-text">Last Name</div>
+          <div class="col card-text">{{profile.last_name}}</div>
+        </div>
+        <div class="card text-center border-0 text-dark mt-4">
+          <div class="row row-cols-3 p-3">
+            <div class="col card-text"><a href="{{url_for('load_profile',username=profile.username)}}"
+                class="btn btn-info" style="font-size:85%">Posts</a></div>
+            <div class="col card-text"><a href="{{url_for('followed',username=profile.username)}}" class="btn btn-info"
+                style="font-size:85%">Followed</a></div>
+            <div class="col card-text"><a href="{{url_for('followers',username=profile.username)}}" class="btn btn-info"
+                style="font-size:85%">Followers</a></div>
+            <div class="col card-text mt-2">{{profile.total_posts}}</div>
+            <div class="col card-text mt-2">{{profile.following}}</div>
+            <div class="col card-text mt-2">{{profile.followers_count}}</div>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 <!-- Profile Section Start -->
 {% if user_posts %}
-  <div class="row row-cols-1 row-cols-md-3 g-4 m-2 p-2" style="width:99%;">
-    {% for x in user_posts %}
-      <div class="col">
-          <div class="card h-100">
-          {% if x.post_image %}
-          <img src="{{url_for('static',filename='post_images/'~x.author_name~'_'~x.title~'_'~x.post_image)}}" class="card-img-top" alt="post-image">
-          {% else %}
-          <div></div>
-          {% endif %}
-          <div class="card-body">
-              <h5 class="card-title">{{x.title}}</h5>
-              <p class="card-text">{{x.description}}</p>
-          </div>
-          <div class="card-footer">
-              <small class="text-muted">{{x.p_timestamp}}</small>
-          </div>
-          </div>
+<div class="row row-cols-1 row-cols-md-3 g-4 m-2 p-2" style="width:99%;">
+  {% for x in user_posts %}
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-header">
+        {{x.title}}
       </div>
-    {% endfor %}
-{% endif %}
-<!-- Profile Section End -->
-<!-- Followers Section Start -->
-{% if load_variable == "followers" %}
-{{followers}}
-<div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 95%;">
-  <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followers</h6>
+      {% if x.post_image %}
+      <img src="{{url_for('static',filename='post_images/'~x.author_name~'_'~x.title~'_'~x.post_image)}}"
+        class="card-img-top rounded-0" alt="post-image">
+      {% endif %}
+      <div class="card-body">
+        <p class="card-text">{{x.description}}</p>
+      </div>
+      <div class="card-footer justify-content-between">
+        <small class="text-muted">{{x.p_timestamp}}</small>
+        <small class="text-muted">{{x.p_timestamp}}</small>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+  <!-- Profile Section End -->
+  <!-- Followers Section Start -->
+  {% if load_variable == "followers" %}
+  <div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 90%;">
+    <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followers</h6>
     {% for x in followers %}
     {% if x != user %}
     <div class="d-flex text-muted pt-3">
@@ -116,23 +132,22 @@ Blog Lite - {{profile.username}} profile
 <!-- Followers Section End -->
 <!-- Followed By Section Start -->
 {% if load_variable == "followed" %}
-{{followers}}
-<div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 95%;">
+<div class="mx-auto my-3 p-3 bg-body rounded shadow-sm" style="width: 90%;">
   <h6 class="border-bottom pb-2 mb-0">{{profile.username}} followed</h6>
-    {% if followers %}
-    {% for x in followers %}
-    {% if x != user %}
-    <div class="d-flex text-muted pt-3">
-      <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
-        <div class="d-flex justify-content-between">
-          <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{x}}</a></strong>
-          <a href="#" class="btn btn-primary">Follow</a>
-        </div>
+  {% if followers %}
+  {% for x in followers %}
+  {% if x != user %}
+  <div class="d-flex text-muted pt-3">
+    <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+      <div class="d-flex justify-content-between">
+        <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{x}}</a></strong>
+        <a href="#" class="btn btn-primary">Follow</a>
       </div>
     </div>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
 </div>
 {% endif %}
 <!-- Followed By Section End -->

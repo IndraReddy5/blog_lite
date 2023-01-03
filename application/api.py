@@ -125,7 +125,8 @@ class Posts_API(Resource):
               "post_image": fields.String,
               "p_timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
-              "total_likes": fields.Integer}
+              "total_likes": fields.Integer,
+              "total_dislikes":fields.Integer}
 
     @marshal_with(output)
     def get(self, p_id):
@@ -134,7 +135,9 @@ class Posts_API(Resource):
             post_object.total_comments = Comments.query.filter_by(
                 post_id=p_id).count()
             post_object.total_likes = Likes.query.filter_by(
-                post_id=p_id).count()
+                post_id=p_id,likes=1).count()
+            post_object.total_dislikes = Likes.query.filter_by(
+                post_id=p_id,dislikes=1).count()
             post_object.p_timestamp = prettify_date(post_object.timestamp)
             return post_object, 200
         else:
@@ -163,7 +166,9 @@ class Posts_API(Resource):
             post_object.total_comments = Comments.query.filter_by(
                 post_id=p_id).count()
             post_object.total_likes = Likes.query.filter_by(
-                post_id=p_id).count()
+                post_id=p_id,likes=1).count()
+            post_object.total_dislikes = Likes.query.filter_by(
+                post_id=p_id,dislikes=1).count()
             post_object.p_timestamp = prettify_date(post_object.timestamp)
             return post_object, 200
         else:
@@ -360,7 +365,8 @@ class Get_Feed_API(Resource):
               "post_image": fields.String,
               "p_timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
-              "total_likes": fields.Integer}
+              "total_likes": fields.Integer,
+              "total_dislikes":fields.Integer}
     
     @marshal_with(output)
     def get(self, username):
@@ -374,6 +380,10 @@ class Get_Feed_API(Resource):
         f_output.sort(key=lambda r: r.timestamp, reverse=True)
         for i in f_output:
             i.p_timestamp = prettify_date(i.timestamp)
+            i.total_likes = Likes.query.filter_by(
+                    post_id=i.p_id,likes=1).count()
+            i.total_dislikes = Likes.query.filter_by(
+                    post_id=i.p_id,dislikes=1).count()
         return f_output, 200
 
 class Get_User_Posts_API(Resource):
@@ -383,7 +393,8 @@ class Get_User_Posts_API(Resource):
               "post_image": fields.String,
               "p_timestamp": fields.List(fields.String),
               "total_comments": fields.Integer,
-              "total_likes": fields.Integer}
+              "total_likes": fields.Integer,
+              "total_dislikes":fields.Integer}
     
     @marshal_with(output)
     def get(self, username):
@@ -393,7 +404,9 @@ class Get_User_Posts_API(Resource):
                 x.total_comments = Comments.query.filter_by(
                     post_id=x.p_id).count()
                 x.total_likes = Likes.query.filter_by(
-                    post_id=x.p_id).count()
+                    post_id=x.p_id,likes=1).count()
+                x.total_dislikes = Likes.query.filter_by(
+                    post_id=x.p_id,dislikes=1).count()
                 x.p_timestamp = prettify_date(x.timestamp)
             return post_object, 200
         else:

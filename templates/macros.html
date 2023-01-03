@@ -13,12 +13,12 @@
           <li><a class="nav-link disable_dropdown" href="#">Sign out</a></li>
         </ul>
         
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" action="{{url_for('search')}}" method="GET">
+          <input type="search" name="search" class="form-control" placeholder="Search..." aria-label="Search" autocomplete="off">
         </form>
         <div class="dropdown text-end logout_class">
           <a href="#" class="d-block link-dark text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="{{url_for('static',filename='profile_images/'~user ~'_'~profile_image_path)}}" alt="mdo" width="32" height="32" class="rounded-circle">
+            <img src="{{url_for('static',filename='profile_images/'~user ~'_'~profile_image_path)}}" alt="profile_pic" width="32" height="32" class="rounded-circle">
           </a>
           <ul class="dropdown-menu text-small" style="position: absolute; font-size: 85%; inset: 0px 4px auto auto; margin: 0px; transform: translate(0px, 34px);" data-popper-placement="static">
             <li><a class="dropdown-item" href="{{url_for('create_post',username=user)}}">New post</a></li>

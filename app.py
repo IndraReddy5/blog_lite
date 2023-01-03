@@ -44,7 +44,7 @@ def login():
                 login_user(data, remember=True)
                 return redirect(url_for('dashboard'))
             else:
-                return render_template('login.html', error=1)
+                return render_template('login.html')
         else:
             return "user doesn't exist"
 
@@ -76,7 +76,7 @@ def create_account():
 
 # App Dashboard route start
 
-@app.route('/dashboard')
+@app.route('/dashboard',methods=["GET"])
 @login_required
 def dashboard():
     feed = req.get(url=request.url_root+f'api/Feed/{current_user.username}').json()
@@ -84,7 +84,22 @@ def dashboard():
 
 # App Dashboard route End
 
-# App routes for User Profile Actions Start
+# App route for Search query and results Start
+
+@app.route('/search', methods=["GET"])
+@login_required
+def search():
+    q = request.args.get('search', type=str)
+    q_results = req.get(url=request.url_root+f'api/Search/{q}')
+    if q_results.status_code == 200:
+        q_results = q_results.json()
+    else:
+        q_results = ""
+    return render_template('search.html',user=current_user.username, profile_image_path = current_user.profile_image, q_results = q_results)
+# App route for Search query and results End
+
+
+# App routes for User Profile Actions (posts, followers, following) Start
 
 @app.route('/profile/<string:username>/posts', methods=['GET'])
 @app.route('/profile/<string:username>', methods=['GET'])
@@ -178,6 +193,12 @@ def logout():
     return redirect('/')
 
 # App route for logout of current_user End
+
+# Ensure responses aren't cached
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
