@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+{% import 'macros.html' as m -%}
+{% block title %}
+Blog Lite - {{user}} Dashboard
+{% endblock %}
+
+
+{% block nav %}
+{{ m.display_nav(user,profile_image_path) }}
+{% endblock %}
+{% block body %}
+    <div class="container pt-2">
+        {% if q_results %}
+            {% for q in q_results %}
+                    {% if q.username != user %}
+                    <div class="d-flex text-muted pt-3">
+                        <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{q.username}}</a></strong>
+                            <a href="#" class="btn btn-primary">Follow</a>
+                        </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="d-flex text-muted pt-3">
+                        <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+                        <div class="d-flex justify-content-between">
+                            <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{q.username}}</a></strong>
+                        </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    {% endblock %}
