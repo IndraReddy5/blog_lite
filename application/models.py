@@ -7,7 +7,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
     username = db.Column(db.String, unique=True,
                          primary_key=True, nullable=False)
-    email = db.Column(db.String, unique=True, nullable=False)
+    email = db.Column(db.String, nullable=False)
     password = db.Column(db.String, nullable=False)
     profile_image = db.Column(db.String)
 

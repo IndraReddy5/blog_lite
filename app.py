@@ -106,7 +106,7 @@ def dashboard():
 def search():
     q = request.args.get('search', type=str)
     lu_following = req.get(url=request.url_root +
-                           f'/api/Follow/{current_user.username}').json().get('following')
+                           f'api/Follow/{current_user.username}').json().get('following')
     q_results = req.get(url=request.url_root+f'api/Search/{q}')
     if q_results.status_code == 200:
         q_results = q_results.json()
@@ -121,15 +121,15 @@ def search():
 @login_required
 def load_profile(username):
     return_object = req.get(url=request.url_root +
-                            f'/api/User_profile/{username}')
+                            f'api/User_profile/{username}')
     if return_object.status_code == 200:
         return_object = return_object.json()
         user_posts = req.get(url=request.url_root +
-                             f'/api/Posts/{username}').json()
+                             f'api/Posts/{username}').json()
         lu_following = req.get(url=request.url_root +
-                               f'/api/Follow/{current_user.username}').json().get('following')
+                               f'api/Follow/{current_user.username}').json().get('following')
         followers_api_object = req.get(url=request.url_root +
-                                       f'/api/Follow/{username}').json()
+                                       f'api/Follow/{username}').json()
         followers = followers_api_object.get('followers')
         followers_objects = followers_api_object.get('followers_objects')
         followed = followers_api_object.get("following")
@@ -144,7 +144,7 @@ def load_profile(username):
 @login_required
 def delete_account(username):
     if current_user.username == username:
-        if req.delete(url=request.url_root+f'/api/User_profile/{username}').status_code == 200:
+        if req.delete(url=request.url_root+f'api/User_profile/{username}').status_code == 200:
             return redirect('/')
     flash('You can\'t delete other users account')
     return redirect(url_for('login'))
@@ -167,7 +167,7 @@ def create_post(username):
                      "title": title,
                      "description": post_description,
                      "post_image": post_image.filename}
-        data = req.post(url=request.url_root+'/api/Posts', json=form_data)
+        data = req.post(url=request.url_root+'api/Posts', json=form_data)
         if data.status_code == 200:
             data = data.json()
             if post_image.filename:
@@ -186,7 +186,7 @@ def create_post(username):
 @app.route('/profile/<string:username>/followers/follow/<string:fr_name>/<string:fd_name>', methods=['GET'])
 @app.route('/profile/<string:username>/followers/follow/<string:fr_name>/<string:fd_name>#<string:end_id>', methods=['GET'])
 def follow_action(username, fr_name, fd_name, end_id=None):
-    if req.post(url=request.url_root+f'/api/Follow/{fr_name}/{fd_name}').status_code == 200:
+    if req.post(url=request.url_root+f'api/Follow/{fr_name}/{fd_name}').status_code == 200:
         if end_id:
             return redirect(request.referrer+"#"+end_id)
         return redirect(request.referrer)
@@ -198,7 +198,7 @@ def follow_action(username, fr_name, fd_name, end_id=None):
 @app.route('/profile/<string:username>/followers/unfollow/<string:fr_name>/<string:fd_name>', methods=['GET'])
 @app.route('/profile/<string:username>/followers/unfollow/<string:fr_name>/<string:fd_name>#<string:end_id>', methods=['GET'])
 def unfollow_action(username, fr_name, fd_name, end_id=None):
-    if req.delete(url=request.url_root+f'/api/Follow/{fr_name}/{fd_name}').status_code == 200:
+    if req.delete(url=request.url_root+f'api/Follow/{fr_name}/{fd_name}').status_code == 200:
         if end_id:
             return redirect(request.referrer+"#"+end_id)
         return redirect(request.referrer)
@@ -215,7 +215,7 @@ def unfollow_action(username, fr_name, fd_name, end_id=None):
 @login_required
 def like_action(engaged_user, p_id):
     if current_user.username == engaged_user:
-        if req.post(url=request.url_root+f'/api/Likes/{engaged_user}/{p_id}').status_code == 200:
+        if req.post(url=request.url_root+f'api/Likes/{engaged_user}/{p_id}').status_code == 200:
             return redirect(request.referrer)
         else:
             flash(f'Sorry, We couldn\'t make {engaged_user} like the post')
@@ -226,7 +226,7 @@ def like_action(engaged_user, p_id):
 @login_required
 def unlike_action(engaged_user, p_id):
     if current_user.username == engaged_user:
-        if req.delete(url=request.url_root+f'/api/Likes/{engaged_user}/{p_id}').status_code == 200:
+        if req.delete(url=request.url_root+f'api/Likes/{engaged_user}/{p_id}').status_code == 200:
             return redirect(request.referrer)
         else:
             flash(f'Sorry, We couldn\'t make {engaged_user} unlike the post')
@@ -244,7 +244,7 @@ def make_comment(engaged_user, p_id):
         data = {"post_id": p_id,
                 "commenter": engaged_user,
                 "comment_description": request.form['comment_description']}
-        if req.post(url=request.url_root+f'/api/Comments/{p_id}', json=data).status_code == 200:
+        if req.post(url=request.url_root+f'api/Comments/{p_id}', json=data).status_code == 200:
             return redirect(request.referrer)
         else:
             flash(
@@ -256,7 +256,7 @@ def make_comment(engaged_user, p_id):
 @login_required
 def delete_comment(engaged_user, c_id):
     if current_user.username == engaged_user:
-        if req.delete(url=request.url_root+f'/api/Comments/{engaged_user}/{c_id}').status_code == 200:
+        if req.delete(url=request.url_root+f'api/Comments/{engaged_user}/{c_id}').status_code == 200:
             return redirect(request.referrer)
         else:
             flash(
@@ -274,7 +274,7 @@ def edit_profile(username):
     if request.method == "GET":
         if current_user.username == username:
             profile = req.get(url=request.url_root +
-                              f"/api/User_profile/{username}")
+                              f"api/User_profile/{username}")
             if profile.status_code == 200:
                 profile = profile.json()
             return render_template('edit_profile.html', user=current_user.username, profile_image_path=current_user.profile_image, profile=profile)
@@ -304,7 +304,7 @@ def edit_profile(username):
 @login_required
 def edit_post(username, p_id):
     if request.method == "GET":
-        blog_data = req.get(url=request.url_root+f"/api/Posts/{p_id}")
+        blog_data = req.get(url=request.url_root+f"api/Posts/{p_id}")
         if blog_data.status_code == 200:
             blog_data = blog_data.json()
             if blog_data['author_name'] == current_user.username:
@@ -339,7 +339,7 @@ def edit_post(username, p_id):
 @login_required
 def delete_post(username, author_name, p_id):
     if username == author_name:
-        if req.delete(url=request.url_root+f'/api/Posts/{username}/{p_id}').status_code == 200:
+        if req.delete(url=request.url_root+f'api/Posts/{username}/{p_id}').status_code == 200:
             return redirect(url_for('load_profile', username=username))
     flash('We were unable to delete that post')
     return redirect(request.referrer)

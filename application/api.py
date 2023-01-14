@@ -313,11 +313,13 @@ class Likes_API(Resource):
         user_object = User_profile.query.filter_by(username=username).first()
         if user_object:
             if post_object:
-                like_object = Likes()
-                like_object.engaged_user = username
-                like_object.post_id = p_id
-                db.session.add(like_object)
-                db.session.commit()
+                like_object = Likes.query.filter_by(engaged_user=username,post_id=p_id).first()
+                if not like_object:
+                    like_object = Likes()
+                    like_object.engaged_user = username
+                    like_object.post_id = p_id
+                    db.session.add(like_object)
+                    db.session.commit()
                 return f"{username} like for post {post_object.title} has been added to database", 200
             else:
                 raise NotFound(status_code=404,
@@ -357,10 +359,10 @@ class Follow_API(Resource):
 
     def delete(self, follower_username, followed_username):
         # removes a follower from the user
-        like1_object = Follow.query.filter_by(
+        follow1_object = Follow.query.filter_by(
             follower_username=follower_username, followed_username=followed_username).first()
-        if like1_object:
-            db.session.delete(like1_object)
+        if follow1_object:
+            db.session.delete(follow1_object)
             db.session.commit()
             return f"Now {follower_username} doesn't follow {followed_username}", 200
         else:
@@ -369,11 +371,13 @@ class Follow_API(Resource):
 
     def post(self, follower_username, followed_username):
         # adds a follower to a user
-        like1_object = Follow()
-        like1_object.follower_username = follower_username
-        like1_object.followed_username = followed_username
-        db.session.add(like1_object)
-        db.session.commit()
+        follow1_object = Follow.query.filter_by(follower_username=follower_username, followed_username=followed_username).first()
+        if not follow1_object:
+            follow1_object = Follow()
+            follow1_object.follower_username = follower_username
+            follow1_object.followed_username = followed_username
+            db.session.add(follow1_object)
+            db.session.commit()
         return f"{follower_username} now follows {followed_username}", 200
 
 
