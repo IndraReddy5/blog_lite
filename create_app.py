@@ -22,11 +22,12 @@ def create_app():
     # Adding Api Resources
     api.add_resource(User_profile_API, '/api/User_profile',
                      '/api/User_profile/<string:username>')
-    api.add_resource(Posts_API, '/api/Posts', '/api/Posts/<int:p_id>')
+    api.add_resource(Posts_API, '/api/Posts', '/api/Posts/<int:p_id>',
+                     '/api/Posts/<string:username>/<int:p_id>')
     api.add_resource(Comments_API, '/api/Comments/<int:p_id>',
-                     '/api/Comments/<int:c_id>')
+                     '/api/Comments/<string:engaged_user>/<int:c_id>')
     api.add_resource(Likes_API, '/api/Likes/<int:p_id>',
-                     '/api/Likes/<int:l_id>', '/api/Likes/<string:username>/<int:p_id>')
+                     '/api/Likes/<string:username>/<int:p_id>')
     api.add_resource(Follow_API, '/api/Follow/<string:username>',
                      '/api/Follow/<string:follower_username>/<string:followed_username>')
     api.add_resource(Get_Feed_API, '/api/Feed/<string:username>')

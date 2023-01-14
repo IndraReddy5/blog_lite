@@ -9,30 +9,34 @@ Blog Lite - {{user}} Dashboard
 {{ m.display_nav(user,profile_image_path) }}
 {% endblock %}
 {% block body %}
-    <div class="container pt-2">
-        {% if q_results %}
-            {% for q in q_results %}
-                    {% if q.username != user %}
-                    <div class="d-flex text-muted pt-3">
-                        <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
-                        <div class="d-flex justify-content-between">
-                            <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{q.username}}</a></strong>
-                            <a href="#" class="btn btn-primary">Follow</a>
-                        </div>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div class="d-flex text-muted pt-3">
-                        <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
-                        <div class="d-flex justify-content-between">
-                            <strong class="text-gray-dark"><a class="text-decoration-none text-black" href="#">{{q.username}}</a></strong>
-                        </div>
-                        </div>
-                    </div>
-                    {% endif %}
-                    </div>
+<div class="container pt-2">
+    {% if q_results %}
+    {% for q in q_results %}
+    <div class="d-flex text-muted pt-3" id="{{q.username}}">
+        <div class="pb-3 mb-0 medium lh-m border-bottom w-100">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <img src="{{url_for('static',filename='profile_images/'~q.username~'_'~q.profile_image)}}"
+                        alt="Bootstrap" width="40" height="40" class="rounded-circle border border-white">
+                    <strong class="text-gray-dark"><a class="text-decoration-none text-black"
+                            href="{{url_for('load_profile',username=q.username)}}">{{q.username}}</a></strong>
                 </div>
-            {% endfor %}
-        {% endif %}
+                {% if q.username != user %}
+                {% if q.username not in lu_following %}
+                <a href="{{url_for('follow_action',username=user,fr_name=user,fd_name=q.username,end_id=q.username)}}"
+                    class="btn btn-primary">Follow</a>
+                {% else %}
+                <a href="{{url_for('unfollow_action',username=user,fr_name=user,fd_name=q.username,end_id=q.username)}}"
+                    class="btn btn-danger">unfollow</a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
     </div>
-    {% endblock %}
+    {% endfor %}
+    {% else %}
+    <div class="text-center mt-3"><em>Sorry we couldn't find what you are looking for :( , please try again
+            &#128591;</em></div>
+    {% endif %}
+</div>
+{% endblock %}

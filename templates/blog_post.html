@@ -1,9 +1,109 @@
 {% extends 'layout.html' %}
-
+{% import 'macros.html' as m -%}
 {% block title %}
-Blog Lite - Login
+Blog Lite - {{blog_data.title}} post
 {% endblock %}
 
-{% block body %}
 
+{% block nav %}
+{{ m.display_nav(user,profile_image_path) }}
+{% endblock %}
+{% block body %}
+<div class="float-end mt-4 me-5">
+    {% with messages = get_flashed_messages() %}
+    {{ m.flash_message(messages) }}
+    {% endwith %}
+    {% if user in likes.users_liked %}
+    <a role="button" title="unlike post" href="{{url_for('unlike_action',engaged_user=user,p_id=blog_data.p_id)}}"
+        class="text-dark"><i class="bi bi-hand-thumbs-up-fill me-5" style="font-size: 20px;"></i></a>
+    {% else %}
+    <a role="button" title="like post" href="{{url_for('like_action',engaged_user=user,p_id=blog_data.p_id)}}"
+        class="text-dark"><i class="bi bi-hand-thumbs-up me-5" style="font-size: 20px;"></i></a>
+    {% endif %}
+    {% if user == blog_data.author_name %}
+    <a role="button" title="edit-post" href="{{url_for('edit_post',username=user,p_id=blog_data.p_id)}}"
+        class="btn btn-info btn-sm me-2"><i class="bi bi-pencil-square"></i></span></a>
+    <a role="button" title="delete_post"
+        href="{{url_for('delete_post',username=user,author_name=blog_data.author_name,p_id=blog_data.p_id)}}"
+        class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></a>
+    {% endif %}
+</div>
+<div class="container text-center mt-4">
+    <div>
+        {% if user == blog_data.author_name %}
+        <h1 class="ms-5 ps-5">
+            {{ blog_data.title }}
+        </h1>
+        {% else %}
+        <h1>
+            {{ blog_data.title }}
+        </h1>
+        {% endif %}
+        <span style="font-size: 90%;">@<a href="{{url_for('load_profile',username=blog_data.author_name)}}"
+                class="text-decoration-none fst-italic text-muted">{{blog_data.author_name}}</a></span> <br>
+        <span class="fst-italic text-muted" style="font-size: 70%;  line-height: 5%;"> <i
+                class="bi bi-calendar-week"></i> {{blog_data.p_timestamp[1] ~" "~ blog_data.p_timestamp[0]}}</span>
+    </div>
+    <div class="mt-4 justify-content-center">
+        {% if blog_data.post_image %}
+        <img src="{{url_for('static',filename='post_images/'~blog_data.author_name~'_'~blog_data.title~'_'~blog_data.post_image)}}"
+            alt="blog_post_image" width="50%">
+        {% endif %}
+        <p class="pt-4">
+            {{blog_data.description|safe}}
+        </p>
+    </div>
+    {% if likes.users_liked %}
+    <span class="text-center"> {% for x in likes.users_liked %}
+        <a href="{{url_for('load_profile',username=x)}}">{{x}}</a>,
+        {% endfor %} have liked this post</span>
+    {% endif %}
+    {% if comments %}
+    {% endif %}
+    <div class="row d-flex justify-content-center border-rounded mt-4">
+        <form class="col-md-2 col-lg-2 col-xl-8"
+            action="{{url_for('make_comment',engaged_user=user,p_id=blog_data.p_id)}}" method="post">
+            <textarea class="form-control" name="comment_description" rows="2" placeholder="Post your comment?"
+                autocomplete="off"></textarea>
+            <button class="btn btn-sm btn-primary float-end mt-2" type="submit"><i class="fa fa-pencil fa-fw"></i>
+                Comment</button>
+        </form>
+    </div>
+    {% for x in comments %}
+    <div class="container py-5">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-2 col-lg-2 col-xl-8">
+                <div class="card">
+                    <div class="card-body">
+                        {% if user == x.commenter %}
+                        <a role="button" href="{{url_for('delete_comment',engaged_user=user,c_id=x.c_id)}}"
+                            class="btn btn-danger btn-sm float-end"><i class="bi bi-trash"></i></a>
+                        {% endif %}
+                        <div class="d-flex flex-start align-items-center">
+                            <img class="rounded-circle shadow-1-strong me-3"
+                                src="{{url_for('static',filename='profile_images/'~x.commenter~'_'~x.commenter_image)}}"
+                                alt="avatar" width="60" height="60" />
+                            <div>
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="fw-bold text-primary float-start mb-1"><a
+                                            href="{{url_for('load_profile',username=x.commenter)}}"
+                                            class="text-decoration-none">{{x.commenter}}</a></h6>
+                                </div>
+                                <p class="text-muted small mb-0">
+                                    {{x.p_timestamp[0]~" "~x.p_timestamp[1]}}
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="mt-3 mb-0 float-start">
+                            {{x.comment_description}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
 {% endblock %}

@@ -10,6 +10,9 @@ Blog Lite - {{user}} Dashboard
 {% endblock %}
 {% block body %}
 <div class="col-md-10 mx-auto col-lg-5 p-4 p-md-3">
+    {% with messages = get_flashed_messages() %}
+      {{ m.flash_message(messages) }}
+    {% endwith %}
     <h1>Create Blog Post</h1>
     <br>
     <form method="POST" action="{{url_for('create_post',username=user)}}" enctype="multipart/form-data">

@@ -9,38 +9,43 @@ Blog Lite - {{user}} Dashboard
 {{ m.display_nav(user,profile_image_path) }}
 {% endblock %}
 {% block body %}
-<div class="row row-cols-1 row-cols-md-3 g-4 m-2 p-2" style="width:99%;">
-    {% for x in feed %}
-    <div class="col">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between">
-                <div>
-                {{x.title}}
-                </div>
-                <div>
-                    <small class="text-muted">{{x.p_timestamp[0]}}</small>
-                    <small class="text-muted">{{x.p_timestamp[1]}}</small>
-                </div>
-            </div>
-            {% if x.post_image %}
-            <img src="{{url_for('static',filename='post_images/'~x.author_name~'_'~x.title~'_'~x.post_image)}}"
-                class="card-img-top rounded-0" alt="post-image">
-            {% endif %}
-            <div class="card-body">
-                <p class="card-text">{{x.description}}</p>
-            </div>
-            <div class="card-footer d-flex justify-content-between">
-                <div>
-                    <span><i class="bi bi-chat"></i></span>
-                    <small class="text-muted">{{x.total_comments}}</small>
-                </div>
-                <div>
-                    <span><i class="bi bi-hand-thumbs-up-fill"></i></span>
-                    <small class="text-muted">{{x.total_likes}}</small>
-                </div>
-            </div>
-        </div>
+{% with messages = get_flashed_messages() %}
+{{ m.flash_message(messages) }}
+{% endwith %}
+{% if feed %}
+<div class="row row-cols-1 row-cols-lg-2 align-items-stretch g-4 py-3 m-1" style="width:99%;">
+  {% for x in feed %}
+  <div class="col">
+    <div class="card card-cover h-100 overflow-hidden border-0 rounded-4 shadow-lg"
+      style="background-image: url('/static/post_images/{{x.author_name}}_{{x.title}}_{{x.post_image}}'); background-position: center center; background-size: cover;">
+      <div class="d-flex flex-column h-100 p-5 pb-3 text-white text-shadow-5" style="backdrop-filter: brightness(40%);">
+        <h3 class="pt-5 mt-5 mb-4 display-6 lh-1 fw-bold"><a href="{{url_for('blog_post',p_id=x.p_id)}}"
+            class="text-decoration-none text-white">{{x.title}}</a></h3>
+        <ul class="d-flex list-unstyled justify-content-between">
+          <li class="">
+            <img src="{{url_for('static',filename='profile_images/'~x.author_name~'_'~x.author_image)}}" alt="Bootstrap"
+              width="40" height="40" class="rounded-circle border border-secondary post-card-stats-img">
+            <span class="pl-2 post-card-stats"><a href="{{url_for('load_profile',username=x.author_name)}}"
+                class="text-decoration-none text-white">{{x.author_name}}</a></span>
+          </li>
+          <li class="ms-1">
+            <small class="post-card-stats"><i class="bi bi-calendar4-week"></i> {{x.p_timestamp[0]}}
+              {{x.p_timestamp[1]}}</small>
+          </li>
+          <li class="ms-1">
+            <small class="post-card-stats"><i class="bi bi-chat"></i><span
+                class="badgeposition-absolute top-100 start-300 translate-middle badge rounded-pill bg-danger">{{x.total_comments}}</span>
+              <i class="bi bi-hand-thumbs-up-fill"></i><span
+                class="badgeposition-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{x.total_likes}}</span></small>
+          </li>
+        </ul>
+      </div>
     </div>
-    {% endfor %}
+  </div>
+  {% endfor %}
 </div>
+{% else %}
+<div class="text-center mt-5"><em style="font-size:20px;">There are no posts to see, try searching for new users to
+    follow</em></div>
+{% endif %}
 {% endblock %}
