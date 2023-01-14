@@ -31,7 +31,7 @@ class User_profile(db.Model):
     first_name = db.Column(db.String, nullable=False)
     last_name = db.Column(db.String)
     email = db.Column(db.String, db.ForeignKey(
-        'user.email'), unique=True, nullable=False)
+        'user.email'), nullable=False)
     profile_image = db.Column(db.String)
     posts_rel = db.relationship(
         "Posts", cascade="delete", foreign_keys='Posts.author_name', backref=db.backref('author_profile'))

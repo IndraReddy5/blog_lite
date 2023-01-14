@@ -172,7 +172,7 @@ class Posts_API(Resource):
                 post_object.author_name = data.get('author_name')
                 file_path_1 = f'static/post_images/{data.get("author_name")}_' + \
                     post_object.title + '_' + post_object.post_image
-                if data.get('post_image'):
+                if data.get('post_image') and post_object.post_image:
                     post_object.post_image = data.get('post_image')
                     cmd = 'rm ' + f"'{file_path_1}'"
                     os.system(cmd)
