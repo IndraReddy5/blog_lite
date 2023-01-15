@@ -1,0 +1,817 @@
+openapi: 3.0.3
+info:
+  title: Blog Lite - OpenAPI 3.0.3
+  description: |
+    This is API documentation made blog lite application
+    [db-diagram-io](https://dbdiagram.io/d/63c2e10c296d97641d79a958)
+    [db-schema-image-link](https://imgur.com/a/FiidZk1)
+    ![db-schema](https://i.imgur.com/TtD0Hi2.png)
+  contact:
+    name: Indra Kumar Reddy Guvva
+    email: 21f1005087@student.onlinedegree.iitm.ac.in
+  version: 1.0.11
+servers:
+  - url: http://127.0.0.1:8000
+tags:
+  - name: User_profile_API
+    description: create,edit,delete user and get user info
+  - name: Posts_API
+    description: create,edit,delete a Post and get post details
+  - name: Comments_API
+    description: make & delete comment, get all comments of a post
+  - name: Likes_API
+    description: like & unlike a post, get all likes of a post
+  - name: Follow_API
+    description: follow & unfollow, get followers and user's following
+  - name: Get_Feed_API
+    description: gets all posts made by users following 
+  - name: Get_User_Posts_API
+    description: gets all posts of the user
+  - name: Search_API
+    description: gets the username,profile_image of the users matching search query
+paths:
+  /api/User_profile:
+    post:
+      tags:
+        - User_profile_API
+      summary: Add a new user
+      description: Add a new user
+      operationId: addPet
+      requestBody:
+        description: New user information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User_Input'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User_Input'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User_Input'
+        required: true
+      responses:
+        '200':
+          description: User added to database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: User_2 username not given, User_1 username already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+  /api/User_profile/{username}:
+    put:
+      tags:
+        - User_profile_API
+      summary: Edit user Information
+      description: Edit user Information
+      operationId: edituser
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+      requestBody:
+        description: Edit user Information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User_Input'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User_Input'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User_Input'
+        required: true
+      responses:
+        '200':
+          description: User Information Edited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: User does not exist
+    get:
+      tags:
+        - User_profile_API
+      summary: Edit user Information
+      description: Edit user Information
+      operationId: getuserinformation
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+      responses:
+        '200':
+          description: User Information is found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: User does not exist
+    delete:
+      tags:
+        - User_profile_API
+      summary: Edit user Information
+      description: Edit user Information
+      operationId: deleteuser
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+      responses:
+        '200':
+          description: user deleted
+        "404":
+          description: User does not exist
+  /api/Posts:
+    post:
+      tags:
+        - Posts_API
+      summary: Create a Post
+      description: This can only be done by the logged in user.
+      operationId: createpost
+      requestBody:
+        description: Post Information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Posts_Input'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Posts_Input'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Posts_Input'
+      responses:
+        '200':
+          description: User added to database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Posts'
+        "400":
+          description: Post_2 title not given, Post_1 title already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+  /api/Posts/{p_id}:
+    put:
+      tags:
+        - Posts_API
+      summary: Edit a post
+      description: Edit a post
+      operationId: Editpost
+      parameters:
+        - in: path
+          name: p_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Post Information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Posts_Input'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Posts_Input'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Posts_Input'
+      responses:
+        '200':
+          description: Edited Post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Posts'
+        "404":
+          description: Post does not exist
+        "400":
+          description: pedit_1 post already exists with this title
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+    get:
+      tags:
+        - Posts_API
+      summary: Gets post Information
+      description: Gets post Information
+      operationId: getpostbyid
+      parameters:
+        - in: path
+          name: p_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: User Information is found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Posts'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Posts'
+        "404":
+          description: Post not found
+  /api/Posts/{username}/{p_id}:
+    delete:
+      tags:
+        - Posts_API
+      summary: Deletes a post
+      description: Deletes a post
+      operationId: deletepost
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+        - in: path
+          name: p_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: post deleted
+        "404":
+          description: User does not exist
+  /api/Comments/{p_id}:
+    post:
+      tags:
+        - Comments_API
+      summary: Make a comment
+      description: Make a comment
+      operationId: postcomment
+      parameters:
+        - in: path
+          name: p_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        description: Comment Information
+        content:
+           application/json:
+              schema:
+                type: object
+                properties:
+                  post_id:
+                    type: integer
+                    example: 1
+                  commenter:
+                    type: string
+                    example: johndoe
+                  comment_description:
+                    type: string
+                    example: hey this is a comment
+      responses:
+        '200':
+          description: Edited Post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comments'          
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Comments'
+        "404":
+          description: Post doesn't exist
+    get:
+      tags:
+        - Comments_API
+      summary: Gets all comments of API
+      description: Gets all comments of API
+      operationId: getcommentdetails
+      parameters:
+        - in: path
+          name: p_id
+          description: Post_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/User'
+        '404':
+          description: There are no comments for this post
+  /api/Comments/{engaged_user}/{c_id}:
+    delete:
+      tags:
+        - Comments_API
+      summary: delete comment
+      description: delete comment
+      operationId: deletecomment
+      parameters:
+        - in: path
+          name: engaged_user
+          description: User_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: c_id
+          description: Comment_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: comment deleted
+        "400":
+          description: cmnt_01 user can't delete this post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+        '404':
+          description: There are no comments for this post
+  /api/Likes/{p_id}:
+    get:
+      tags:
+        - Likes_API
+      summary: Gets all Likes of a post
+      description: Gets all Likes of a post
+      operationId: getlikes
+      parameters:
+        - in: path
+          name: p_id
+          description: Post_id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: usernames of all the persons who liked the post
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Likes'
+        '404':
+          description: User not found
+  /api/Likes/{username}/{p_id}:
+    delete:
+      tags:
+        - Likes_API
+      summary: Removes a like
+      description: Removes a like
+      operationId: Removelike
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+        - in: path
+          name: p_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: like entry deleted
+        "404":
+          description: user never liked this post
+    post:
+      tags:
+        - Likes_API
+      summary: like a post
+      description: Like a post
+      operationId: likepost
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+        - in: path
+          name: p_id
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: User liked the post
+        "400":
+          description: Post/User not found
+  /api/Follow/{username}:
+    get:
+      tags:
+        - Follow_API
+      summary: Gets all followers of the user
+      description: Gets all followers of the user
+      operationId: getfollowers
+      parameters:
+        - in: path
+          name: username
+          description: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of all followers
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Follow'
+        '404':
+          description: User not found
+  /api/Follow/{follower_username}/{followed_username}:
+    delete:
+      tags:
+        - Follow_API
+      summary: unfollow a user
+      description: unfollow a user
+      operationId: unfollow
+      parameters:
+        - in: path
+          name: follower_username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+        - in: path
+          name: followed_username
+          required: true
+          schema:
+            type: string
+            example: PaulAlto
+      responses:
+        '200':
+          description: follower_user now doesn't follow followed_user
+        "400":
+          description: Like_1 follower_user doesn't follow followed_user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: string
+                  error_message:
+                    type: string
+    post:
+      tags:
+        - Follow_API
+      summary: follow a user
+      description: follow a user
+      operationId: follow
+      parameters:
+        - in: path
+          name: follower_username
+          required: true
+          schema:
+            type: string
+            example: Johndoe
+        - in: path
+          name: followed_username
+          required: true
+          schema:
+            type: string
+            example: PaulAlto
+      responses:
+        '200':
+          description: follow user follows followed_user
+  /api/Feed/{username}:
+    get:
+      tags:
+        - Get_Feed_API
+      summary: Gets dashboard feed of the user
+      description: Gets dashboard feed of the user
+      operationId: getfeed
+      parameters:
+        - in: path
+          name: username
+          description: username of the person
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Users feed
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Posts'
+  /api/Posts_User/{username}:
+    get:
+      tags:
+        - Get_User_Posts_API
+      summary: Gets all posts created by the user
+      description: Gets all posts created by the user
+      operationId: getpostsbyuser
+      parameters:
+        - in: path
+          name: username
+          description: username of the person
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Users feed
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Posts'
+        '201':
+          description: No posts made by user
+  /api/Search/{query}:
+    get:
+      tags:
+        - Search_API
+      summary: Gets all posts created by the user
+      description: Gets all posts created by the user
+      operationId: getmatchedusers
+      parameters:
+        - in: path
+          name: query
+          description: usernames of the person
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Users feed
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Search'
+        '404':
+          description: No users found
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        username:
+          type: string
+          example: JohnDoe
+        first_name:
+          type: string
+          example: John
+        second_name:
+          type: string
+          example: Doe
+        profile_image:
+          type: string
+          format: jdoe.jpg
+        email:
+          type: string
+          format: email
+          example: jdoe@gmail.com
+        followers_count:
+          type: integer
+          format: int64
+          example: 0
+        following:
+          type: integer
+          format: int64
+          example: 0
+        total_posts:
+          type: integer
+          format: int64
+          example: 0
+      xml:
+        name: User
+    User_Input:
+      type: object
+      properties:
+        username:
+          type: string
+          example: JohnDoe
+        password:
+          type: string
+          format: password
+        first_name:
+          type: string
+          example: John
+        second_name:
+          type: string
+          example: Doe
+        email:
+          type: string
+          format: email
+          example: jdoe@gmail.com
+        profile_image:
+          type: string
+          format: jdoe.jpg
+      xml:
+        name: User_Input
+    Posts:
+      type: object
+      properties:
+        p_id:
+          type: integer
+          format: int64
+          example: 1
+        author_name:
+          type: string
+          example: Palo Alto
+        title:
+          type: string
+          example: CA Blog
+        description:
+          type: string
+          example: CA's First Blog
+        post_image:
+          type: string
+          example: test.jpg
+        p_timestamp:
+          type: array
+          items: 
+            type: string
+          example: ["14/01/2023",
+            "09:59 AM"]
+        total_comments:
+          type: integer
+          example: 0
+        total_likes:
+          type: integer
+          example: 0
+        author_image:
+          type: string
+          example: jdoe.jpg
+      xml:
+        name: Posts
+    Posts_Input:
+      type: object
+      properties:
+        author_name:
+          type: string
+          example: Palo Alto
+        title:
+          type: string
+          example: CA Blog
+        description:
+          type: string
+          example: CA's First Blog
+        post_image:
+          type: string
+          example: test.jpg
+        timestamp:
+          type: string
+          example: "2023_01_11_13_45_40"
+      xml:
+        name: Posts_Input
+    Comments:
+      type: object
+      properties:
+        c_id:
+          type: integer
+          format: int64
+          example: 1
+        post_id:
+          type: integer
+          example: 1
+        commenter:
+          type: string
+          example: JohnDoe
+        comment_description:
+          type: string
+          example: Test Comment
+        p_timestamp:
+          type: array
+          items: 
+            type: string
+          example: ["14/01/2023",
+            "09:59 AM"]
+        commenter_image:
+          type: string
+          example: jdoe.jpg
+      xml:
+        name: Comments
+    Likes:
+      type: object
+      properties:
+        users_liked:
+          type: array
+          items:
+            type: string
+          example: ["JohnDoe","PaulAlto"]
+      xml:
+        name: Likes
+    Follow_Object:
+      type: object
+      properties:
+        username:
+          type: string
+          example: JohnDoe
+        profile_image:
+          type: string
+          example: jdoe.jpg
+      xml:
+        name: Follow_Object
+    Follow:
+      type: object
+      properties:
+        following:
+          type: array
+          items:
+            type: string
+          example: ["JohnDoe","PaulAlto"]
+        followers:
+          type: array
+          items:
+            type: string
+          example: ["JohnDoe","PaulAlto"]
+        following_objects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Follow_Object'
+        followers_objects:
+          type: array
+          items:
+            $ref: '#/components/schemas/Follow_Object'
+      xml:
+        name: Follow
+    Search:
+      type: object
+      properties:
+        username:
+          type: string
+          example: JohnDoe
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        profile_image:
+          type: string
+          example: jdoe.jpg
+      xml:
+        name: 'Search'
