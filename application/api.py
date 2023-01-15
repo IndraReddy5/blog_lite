@@ -290,7 +290,7 @@ class Likes_API(Resource):
 
     @marshal_with(output)
     def get(self, p_id):
-        # gets all usernames of the persons who liked the post and usernames of the persons who disliked the post
+        # gets all usernames of the persons who liked the post
         if Posts.query.filter_by(p_id=p_id).first():
             likes_object = Likes.query.filter_by(post_id=p_id).all()
             users_liked = [x.engaged_user for x in likes_object]
@@ -308,7 +308,7 @@ class Likes_API(Resource):
             return "like entry deleted", 200
         else:
             raise NotFound(status_code=404,
-                           error_message="This entry has been deleted before")
+                           error_message="User never liked this post")
 
     def post(self, username, p_id):
         # adds a like to a post
@@ -369,7 +369,7 @@ class Follow_API(Resource):
             db.session.commit()
             return f"Now {follower_username} doesn't follow {followed_username}", 200
         else:
-            raise ValidationError(status_code=404, error_code="Like_1",
+            raise ValidationError(status_code=400, error_code="Like_1",
                                   error_message=f"{follower_username} doesn't follow {followed_username}")
 
     def post(self, follower_username, followed_username):
