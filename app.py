@@ -126,7 +126,7 @@ def load_profile(username):
     if return_object.status_code == 200:
         return_object = return_object.json()
         user_posts = req.get(url=request.url_root +
-                             f'api/Posts/{username}').json()
+                             f'api/Posts_User/{username}').json()
         lu_following = req.get(url=request.url_root +
                                f'api/Follow/{current_user.username}').json().get('following')
         followers_api_object = req.get(url=request.url_root +
