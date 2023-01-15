@@ -77,7 +77,8 @@ def create_account():
                 if file_uploaded.filename:
                     file_uploaded.save(os.path.join(
                         'static/profile_images/', username+"_"+file_uploaded.filename))
-                return redirect('/')
+                    login_user(User.query.filter_by(username=username).first(),remember=True)
+                return redirect(url_for('dashboard'))
             else:
                 flash('User already exists')
                 return redirect(url_for('create_account'))
