@@ -149,10 +149,11 @@ class Posts_API(Resource):
         post_object = Posts.query.filter_by(p_id=p_id).first()
         if post_object:
             if post_object.author_name == username:
-                file_path = f'static/post_images/{post_object.author_name}_' + \
-                    post_object.title + '_' + post_object.post_image
-                cmd = 'rm ' + f'{file_path}'
-                os.system(cmd)
+                if post_object.post_image:
+                    file_path = f'static/post_images/{post_object.author_name}_' + \
+                        post_object.title + '_' + post_object.post_image
+                    cmd = 'rm ' + f'{file_path}'
+                    os.system(cmd)
                 db.session.delete(post_object)
                 db.session.commit()
                 return "post deleted", 200
